@@ -84,7 +84,6 @@ resource "aws_route_table_association" "public_2_association" {
 
 # NAT Gateway
 resource "aws_eip" "nat" {
-  vpc = true
 }
 
 resource "aws_nat_gateway" "main_nat" {
