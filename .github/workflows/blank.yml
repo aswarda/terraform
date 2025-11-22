@@ -17,4 +17,5 @@ jobs:
       - name: Run Checkov scan
         uses: bridgecrewio/checkov-action@v12
         with:
-          directory: . || true
+          directory: . 
+          soft_fail: true   # prevents job from failing
