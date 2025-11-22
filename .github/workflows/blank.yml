@@ -33,4 +33,4 @@ jobs:
       - name: Run a multi-line script
         run: |
           sudo pip3 install checkov
-          checkov --version
+          #checkov --version
