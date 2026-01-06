@@ -1,2 +1,2 @@
 # terraform
-This is for deploying aws resources like eks, vpc, subnets, route tables &amp; iam roles
+This is for deploying azure resources like vnet, subnets, route tables & routes.
