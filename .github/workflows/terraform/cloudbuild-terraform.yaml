@@ -1,0 +1,62 @@
+# =====================================================================
+# Terraform pipeline in Cloud Build.
+#   fmt -> init -> validate -> plan   (always; safe, read-only)
+#   apply                             (only when _APPLY=true)
+#
+# Pattern (maps to your Azure Terraform pipeline):
+#   - "plan" trigger  : on push/PR, _APPLY=false  -> review the plan
+#   - "apply" trigger : manual, "Require approval" checked, _APPLY=true
+#     -> the build WAITS for a human approve in the Cloud Build UI = your gate
+#
+# State lives in the existing GCS backend (backend.tf: bucket aswarda-tfstate-dev).
+# Run from the repo root that contains the .tf files.
+# =====================================================================
+
+substitutions:
+  _TF_VERSION: "1.9.8"
+  _APPLY: "false" # override with "true" on the apply trigger
+
+steps:
+  # 1) fmt check — fail early if code isn't formatted.
+  - id: fmt
+    name: hashicorp/terraform:${_TF_VERSION}
+    entrypoint: terraform
+    args: ["fmt", "-check", "-recursive"]
+
+  # 2) init — configures the GCS backend (uses the build SA's ADC automatically).
+  - id: init
+    name: hashicorp/terraform:${_TF_VERSION}
+    entrypoint: terraform
+    args: ["init", "-input=false"]
+
+  # 3) validate — static checks.
+  - id: validate
+    name: hashicorp/terraform:${_TF_VERSION}
+    entrypoint: terraform
+    args: ["validate"]
+
+  # 4) plan — write a plan file so apply uses EXACTLY what was reviewed.
+  - id: plan
+    name: hashicorp/terraform:${_TF_VERSION}
+    entrypoint: terraform
+    args:
+      - plan
+      - -input=false
+      - -var=project_id=$PROJECT_ID
+      - -out=tfplan
+
+  # 5) apply — only if _APPLY=true. Applies the saved plan (no surprises).
+  - id: apply
+    name: hashicorp/terraform:${_TF_VERSION}
+    entrypoint: sh
+    args:
+      - -c
+      - |
+        if [ "${_APPLY}" = "true" ]; then
+          terraform apply -input=false -auto-approve tfplan
+        else
+          echo "Skipping apply (_APPLY=${_APPLY}). This was a plan-only run."
+        fi
+
+options:
+  logging: CLOUD_LOGGING_ONLY
