@@ -5,7 +5,7 @@
 # GCS backend handles state locking automatically (no separate lock table needed).
 terraform {
   backend "gcs" {
-    bucket = "aswarda-tfstate-dev"   # <-- globally-unique bucket you create first
-    prefix = "gke/dev"               # <-- "folder" path for this state (like a key)
+    bucket = "aswarda-tfstate-dev" # <-- globally-unique bucket you create first
+    prefix = "gke/dev"             # <-- "folder" path for this state (like a key)
   }
 }

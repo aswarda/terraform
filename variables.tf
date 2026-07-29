@@ -1,7 +1,7 @@
 variable "project_id" {
   description = "GCP project ID (globally unique). Azure analogy: the subscription+RG combined."
   type        = string
-  default = "project-19163790-d10f-48bc-a87"
+  default     = "project-19163790-d10f-48bc-a87"
 }
 
 variable "region" {
