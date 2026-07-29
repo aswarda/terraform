@@ -20,7 +20,7 @@ resource "google_cloudbuild_worker_pool" "private" {
 
   worker_config {
     machine_type   = var.cb_pool_machine_type
-    disk_size_gb   = 20
+    disk_size_gb   = 100
     no_external_ip = true # workers have NO public IP; egress via Cloud NAT
   }
 
