@@ -16,7 +16,7 @@ tags:
 
 substitutions:
   _TF_VERSION: "1.9.8"
-  _APPLY: "true" # override with "true" on the apply trigger
+  _APPLY: "false" # override with "true" on the apply trigger
 
 steps:
   # 1) fmt check — fail early if code isn't formatted.
@@ -62,5 +62,3 @@ steps:
 
 options:
   logging: CLOUD_LOGGING_ONLY
-  pool:
-    name: projects/project-19163790-d10f-48bc-a87/locations/us-central1/workerPools/aswarda-dev-pool
