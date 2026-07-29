@@ -62,3 +62,5 @@ steps:
 
 options:
   logging: CLOUD_LOGGING_ONLY
+  pool:
+    name: projects/project-19163790-d10f-48bc-a87/locations/us-central1/workerPools/aswarda-dev-pool
