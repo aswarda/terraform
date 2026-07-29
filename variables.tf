@@ -133,3 +133,8 @@ variable "redis_version" {
   type        = string
   default     = "REDIS_7_0"
 }
+variable "cb_pool_machine_type" {
+  description = "Machine type for Cloud Build private-pool workers."
+  type        = string
+  default     = "e2-medium"
+}
