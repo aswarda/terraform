@@ -11,6 +11,8 @@
 # State lives in the existing GCS backend (backend.tf: bucket aswarda-tfstate-dev).
 # Run from the repo root that contains the .tf files.
 # =====================================================================
+tags:
+  - aswarda-terraform-$SHORT_SHA
 
 substitutions:
   _TF_VERSION: "1.9.8"
