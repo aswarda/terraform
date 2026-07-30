@@ -14,6 +14,8 @@ locals {
     "sqladmin.googleapis.com",
     "pubsub.googleapis.com",
     "redis.googleapis.com",
+    "vpcaccess.googleapis.com",
+    "run.googleapis.com",
   ]
 }
 
