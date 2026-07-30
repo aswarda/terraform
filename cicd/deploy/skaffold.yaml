@@ -1,0 +1,19 @@
+# Skaffold is the engine Cloud Deploy uses to RENDER + APPLY manifests.
+# Each Cloud Deploy stage picks a profile (dev/prod) -> its own manifest file.
+# The image "sampleapp" in those manifests is replaced with the real Artifact
+# Registry image at release time (Cloud Deploy passes --images=sampleapp=...).
+apiVersion: skaffold/v4beta7
+kind: Config
+metadata:
+  name: sampleapp
+profiles:
+  - name: dev
+    manifests:
+      rawYaml:
+        - dev.yaml
+  - name: prod
+    manifests:
+      rawYaml:
+        - prod.yaml
+deploy:
+  kubectl: {}

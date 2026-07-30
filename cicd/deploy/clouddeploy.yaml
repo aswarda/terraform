@@ -1,0 +1,38 @@
+# Cloud Deploy delivery pipeline: dev (web1) -> prod (prod), with an APPROVAL
+# gate on prod. Register ONCE with:
+#   gcloud deploy apply --file=cicd/deploy/clouddeploy.yaml \
+#     --region=us-central1 --project=project-19163790-d10f-48bc-a87
+apiVersion: deploy.cloud.google.com/v1
+kind: DeliveryPipeline
+metadata:
+  name: sampleapp-pipeline
+description: Build -> deploy to dev (web1) -> (approve) -> prod (prod)
+serialPipeline:
+  stages:
+    - targetId: dev
+      profiles: [dev]
+    - targetId: prod
+      profiles: [prod]
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: dev
+description: dev app in namespace web1 (auto-deploy, no approval)
+gke:
+  cluster: projects/project-19163790-d10f-48bc-a87/locations/us-central1-a/clusters/aswarda-dev-gke
+executionConfigs:
+  - usages: [RENDER, DEPLOY]
+    serviceAccount: 741698145964@cloudbuild.gserviceaccount.com
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: prod
+description: prod app in namespace prod
+requireApproval: true          # <-- approval gate before prod
+gke:
+  cluster: projects/project-19163790-d10f-48bc-a87/locations/us-central1-a/clusters/aswarda-dev-gke
+executionConfigs:
+  - usages: [RENDER, DEPLOY]
+    serviceAccount: 741698145964@cloudbuild.gserviceaccount.com

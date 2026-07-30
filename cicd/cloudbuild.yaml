@@ -1,0 +1,59 @@
+# =====================================================================
+# CI pipeline (Cloud Build): build -> push to Artifact Registry ->
+# create a Cloud Deploy RELEASE. Cloud Deploy then rolls out to dev and
+# waits for your APPROVAL before prod.
+#
+# Cloud mapping:
+#   Cloud Build            -> AWS CodeBuild | Azure DevOps build stage
+#   Cloud Deploy release   -> CodePipeline/CodeDeploy | ADO deploy stage+approval
+#   substitutions (_VAR)   -> pipeline variables
+#
+# Manual run:
+#   gcloud builds submit --region=us-central1 --config=cicd/cloudbuild.yaml .
+# =====================================================================
+
+substitutions:
+  _REGION: us-central1
+  _REPO: aswarda-dev-docker
+  _IMAGE: sampleapp
+  _PIPELINE: sampleapp-pipeline
+
+steps:
+  # 1) Build from the app/ folder. $SHORT_SHA = commit SHA (immutable, unique tag).
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_IMAGE}:$SHORT_SHA
+      - -f
+      - app/Dockerfile
+      - app
+
+  # 2) Push to Artifact Registry.
+  - id: push
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_IMAGE}:$SHORT_SHA
+
+  # 3) Create a Cloud Deploy release. This kicks off rollout to 'dev';
+  #    promotion to 'prod' then waits for approval (requireApproval: true).
+  - id: release
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - deploy
+      - releases
+      - create
+      - rel-$SHORT_SHA
+      - --delivery-pipeline=${_PIPELINE}
+      - --region=${_REGION}
+      - --source=cicd/deploy
+      - --images=${_IMAGE}=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_IMAGE}:$SHORT_SHA
+
+images:
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_IMAGE}:$SHORT_SHA
+
+options:
+  logging: CLOUD_LOGGING_ONLY
