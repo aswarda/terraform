@@ -73,6 +73,7 @@ steps:
       - triggers
       - run
       - ${_APPLY_TRIGGER_NAME}
+      - --region=us-central1
       - --branch=$BRANCH_NAME
       - --substitutions=_PLAN_BUILD_ID=$BUILD_ID
 
