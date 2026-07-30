@@ -23,7 +23,7 @@ gke:
   cluster: projects/project-19163790-d10f-48bc-a87/locations/us-central1-a/clusters/aswarda-dev-gke
 executionConfigs:
   - usages: [RENDER, DEPLOY]
-    serviceAccount: 741698145964@cloudbuild.gserviceaccount.com
+    serviceAccount: 741698145964-compute@developer.gserviceaccount.com
 ---
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
@@ -35,4 +35,4 @@ gke:
   cluster: projects/project-19163790-d10f-48bc-a87/locations/us-central1-a/clusters/aswarda-dev-gke
 executionConfigs:
   - usages: [RENDER, DEPLOY]
-    serviceAccount: 741698145964@cloudbuild.gserviceaccount.com
+    serviceAccount: 741698145964-compute@developer.gserviceaccount.com

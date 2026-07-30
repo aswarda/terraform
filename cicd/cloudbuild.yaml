@@ -37,6 +37,16 @@ steps:
       - push
       - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_IMAGE}:$SHORT_SHA
 
+  - id: register-pipeline
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - deploy
+      - apply
+      - --file=cicd/deploy/clouddeploy.yaml
+      - --region=us-central1
+      - --project=project-19163790-d10f-48bc-a87
+
   # 3) Create a Cloud Deploy release. This kicks off rollout to 'dev';
   #    promotion to 'prod' then waits for approval (requireApproval: true).
   - id: release
