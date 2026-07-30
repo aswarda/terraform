@@ -1,0 +1,56 @@
+# =====================================================================
+# Terraform APPLY pipeline in Cloud Build.
+#   init -> fetch reviewed plan -> apply
+#
+# Pattern:
+#   - "apply" trigger : fired automatically by the plan build's
+#     trigger-apply step, NOT run manually and NOT run on push.
+#   - This trigger has "Require approval" checked in the Cloud Build
+#     UI/trigger config -> the build sits PENDING until a human with
+#     the Cloud Build Approver role approves it = your gate.
+#   - Downloads the exact tfplan produced by the plan build identified
+#     by _PLAN_BUILD_ID, so apply uses EXACTLY what was reviewed.
+#
+# State lives in the existing GCS backend (backend.tf: bucket aswarda-tfstate-dev).
+# Run from the repo root that contains the .tf files.
+# =====================================================================
+tags:
+  - aswarda-terraform-apply-$SHORT_SHA
+
+substitutions:
+  _TF_VERSION: "1.9.8"
+  _PLAN_BUCKET: "aswarda-tfstate-dev"
+  _PLAN_BUILD_ID: "" # passed in automatically by the plan build's trigger-apply step
+
+steps:
+  # 1) init — configures the GCS backend (uses the build SA's ADC automatically).
+  - id: init
+    name: hashicorp/terraform:${_TF_VERSION}
+    entrypoint: terraform
+    args: ["init", "-input=false"]
+
+  # 2) fetch-plan — download the EXACT plan file the plan build produced
+  #    and that was reviewed before this build was approved. Fails loudly
+  #    if _PLAN_BUILD_ID wasn't passed in, so this can't silently apply
+  #    against nothing / the wrong plan.
+  - id: fetch-plan
+    name: gcr.io/cloud-builders/gsutil
+    entrypoint: sh
+    args:
+      - -c
+      - |
+        if [ -z "${_PLAN_BUILD_ID}" ]; then
+          echo "ERROR: _PLAN_BUILD_ID not set. This trigger must be fired by the plan build, not run standalone."
+          exit 1
+        fi
+        gsutil cp gs://${_PLAN_BUCKET}/plans/${_PLAN_BUILD_ID}/tfplan tfplan
+
+  # 3) apply — applies the saved, reviewed plan. No -var flags here on
+  #    purpose: the plan file already has everything baked in.
+  - id: apply
+    name: hashicorp/terraform:${_TF_VERSION}
+    entrypoint: terraform
+    args: ["apply", "-input=false", "-auto-approve", "tfplan"]
+
+options:
+  logging: CLOUD_LOGGING_ONLY

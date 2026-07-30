@@ -1,22 +1,26 @@
 # =====================================================================
-# Terraform pipeline in Cloud Build.
-#   fmt -> init -> validate -> plan   (always; safe, read-only)
-#   apply                             (only when _APPLY=true)
+# Terraform PLAN pipeline in Cloud Build.
+#   fmt -> init -> validate -> plan -> upload plan -> trigger apply build
 #
-# Pattern (maps to your Azure Terraform pipeline):
-#   - "plan" trigger  : on push/PR, _APPLY=false  -> review the plan
-#   - "apply" trigger : manual, "Require approval" checked, _APPLY=true
-#     -> the build WAITS for a human approve in the Cloud Build UI = your gate
+# Pattern:
+#   - "plan" trigger  : on push/PR -> runs this file -> review the plan
+#   - on success, automatically fires the "terraform-apply" trigger,
+#     which is gated by "Require approval" in the Cloud Build UI = your gate
+#   - the apply build fetches THIS EXACT plan file from GCS, so apply
+#     uses exactly what was reviewed here — no drift, no surprises.
 #
 # State lives in the existing GCS backend (backend.tf: bucket aswarda-tfstate-dev).
+# Plan artifacts are stored in the same bucket under plans/<BUILD_ID>/tfplan.
 # Run from the repo root that contains the .tf files.
 # =====================================================================
 tags:
-  - aswarda-terraform-$SHORT_SHA
+  - aswarda-terraform-plan-$SHORT_SHA
 
 substitutions:
   _TF_VERSION: "1.9.8"
-  _APPLY: "false" # override with "true" on the apply trigger
+  _PLAN_BUCKET: "aswarda-tfstate-dev"
+  _APPLY_TRIGGER_NAME: "terraform-apply" # name of the apply trigger, created separately
+  _PLAN_BUCKET: "aswarda-tfstate-dev"
 
 steps:
   # 1) fmt check — fail early if code isn't formatted.
@@ -47,18 +51,30 @@ steps:
       - -var=project_id=$PROJECT_ID
       - -out=tfplan
 
-  # 5) apply — only if _APPLY=true. Applies the saved plan (no surprises).
-  - id: apply
-    name: hashicorp/terraform:${_TF_VERSION}
-    entrypoint: sh
+  # 5) upload-plan — persist the exact binary plan file so the apply
+  #    build (a separate, fresh workspace) can fetch this SAME plan.
+  - id: upload-plan
+    name: gcr.io/cloud-builders/gsutil
     args:
-      - -c
-      - |
-        if [ "${_APPLY}" = "true" ]; then
-          terraform apply -input=false -auto-approve tfplan
-        else
-          echo "Skipping apply (_APPLY=${_APPLY}). This was a plan-only run."
-        fi
+      - cp
+      - tfplan
+      - gs://${_PLAN_BUCKET}/plans/$BUILD_ID/tfplan
+
+  # 6) trigger-apply — fire the apply trigger, passing this build's ID
+  #    so the apply build knows exactly which plan file to download.
+  #    Because the apply trigger has "Require approval" enabled, this
+  #    call only creates a PENDING build — it will not run until a
+  #    human with the Cloud Build Approver role approves it.
+  - id: trigger-apply
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - builds
+      - triggers
+      - run
+      - ${_APPLY_TRIGGER_NAME}
+      - --branch=$BRANCH_NAME
+      - --substitutions=_PLAN_BUILD_ID=$BUILD_ID
 
 options:
   logging: CLOUD_LOGGING_ONLY
