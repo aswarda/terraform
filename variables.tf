@@ -138,3 +138,27 @@ variable "cb_pool_machine_type" {
   type        = string
   default     = "e2-medium"
 }
+# ---- Cloud Run ----
+variable "cloud_run_image" {
+  description = "Container image for Cloud Run. Override with your Artifact Registry image, e.g. us-central1-docker.pkg.dev/<project>/aswarda-dev-docker/sampleapp:<tag>."
+  type        = string
+  default     = "us-docker.pkg.dev/cloudrun/container/hello" # public sample; swap for your sampleapp image
+}
+
+variable "cloud_run_connector_cidr" {
+  description = "Unused /28 for the Serverless VPC Access connector (must not overlap other ranges)."
+  type        = string
+  default     = "10.8.0.0/28"
+}
+
+variable "cloud_run_min_instances" {
+  description = "Minimum Cloud Run instances (0 = scale to zero)."
+  type        = number
+  default     = 0
+}
+
+variable "cloud_run_max_instances" {
+  description = "Maximum Cloud Run instances (autoscaling ceiling)."
+  type        = number
+  default     = 5
+}

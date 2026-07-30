@@ -7,7 +7,7 @@ PORT = int(os.environ.get("PORT", "8080"))
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        body = f"Hello from sampleapp!\nVersion: {VERSION}\nHost: {os.uname().nodename}\n"
+        body = f"Hello from sampleapp! From:Aswarda\nVersion: {VERSION}\nHost: {os.uname().nodename}\n"
         self.send_response(200)
         self.send_header("Content-Type", "text/plain")
         self.end_headers()
