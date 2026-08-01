@@ -21,7 +21,6 @@ substitutions:
   _TF_VERSION: "1.9.8"
   _PLAN_BUCKET: "aswarda-tfstate-dev"
   _PLAN_BUILD_ID: "" # passed in automatically by the plan build's trigger-apply step
-  _DESTROY: "true" # TEMP: set to "true" via manual trigger to destroy all resources (for demo purposes only, not for production use)
 
 steps:
   # 1) init — configures the GCS backend (uses the build SA's ADC automatically).
@@ -53,18 +52,6 @@ steps:
     entrypoint: terraform
     args: ["apply", "-input=false", "-auto-approve", "tfplan"]
 
-  # 4) destroy (optional) — if _DESTROY is set to "true" (via manual trigger), #    destroy all resources. This is for demo purposes only, not for production use.
-  - id: destroy
-    name: hashicorp/terraform:${_TF_VERSION}
-    entrypoint: sh
-    args:
-      - -c
-      - |
-        if [ "${_DESTROY}" = "true" ]; then
-          terraform destroy -input=false -auto-approve
-        else
-          echo "Skipping destroy step; _DESTROY is not set to 'true'."
-        fi
 
 options:
   logging: CLOUD_LOGGING_ONLY
