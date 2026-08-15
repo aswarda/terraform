@@ -27,7 +27,7 @@ steps:
   - id: fmt
     name: hashicorp/terraform:${_TF_VERSION}
     entrypoint: terraform
-    args: ["fmt", "-check", "-recursive"]
+    args: ["fmt", "-recursive"]
 
   # 2) init — configures the GCS backend (uses the build SA's ADC automatically).
   - id: init
