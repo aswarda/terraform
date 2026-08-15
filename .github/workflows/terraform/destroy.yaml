@@ -44,7 +44,7 @@ steps:
           echo "ERROR: _PLAN_BUILD_ID not set. This trigger must be fired by the destroy-plan build, not run standalone."
           exit 1
         fi
-        gsutil cp gs://${_PLAN_BUCKET}/plans/${_PLAN_BUILD_ID}/destroy-tfplan destroy-tfplan
+        gsutil cp gs://${_PLAN_BUCKET}/plans/${_PLAN_BUILD_ID}/tfplan destroy-tfplan
 
   # 3) apply — applies the saved, reviewed DESTROY plan. No -var flags
   #    here on purpose: the plan file already has everything baked in.
