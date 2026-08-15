@@ -30,6 +30,7 @@ resource "google_vpc_access_connector" "serverless" {
 resource "google_cloud_run_v2_service" "app" {
   name     = "${var.name_prefix}-run"
   location = var.region
+  deletion_protection = false
 
   # Public ingress: reachable from the internet on the https URL.
   ingress = "INGRESS_TRAFFIC_ALL"
