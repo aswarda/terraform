@@ -51,6 +51,6 @@ steps:
   - id: destroy-apply
     name: hashicorp/terraform:${_TF_VERSION}
     entrypoint: terraform
-    args: ["destroy", "-input=false", "-auto-approve", "destroy-tfplan"]
+    args: ["destroy", "-input=false", "-auto-approve"]
 options:
   logging: CLOUD_LOGGING_ONLY
