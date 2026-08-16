@@ -17,17 +17,16 @@ resource "google_storage_bucket" "log_archive" {
   }
 }
 
-# 2. Create the Project-Level Log Sink filtering only for GKE logs
 resource "google_logging_project_sink" "gke_sink" {
   name        = "${var.name_prefix}-gke-to-gcs-sink"
   description = "Routes GKE stdout, stderr, and system logs to storage bucket"
-  destination = "://googleapis.com{google_storage_bucket.log_archive.name}"
+  destination = "storage.googleapis.com/${google_storage_bucket.log_archive.name}"
 
   # The filter targets container logs, GKE cluster operations, and node system logs
   filter = <<EOT
-    resource.type="k8s_container" OR 
-    resource.type="gke_cluster" OR 
-    resource.type="gco_node"
+    resource.type="k8s_container" OR
+    resource.type="gke_cluster" OR
+    resource.type="gce_instance"
   EOT
 
   unique_writer_identity = true
