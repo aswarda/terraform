@@ -19,7 +19,7 @@ variable "zone" {
 variable "name_prefix" {
   description = "Prefix for resource names, e.g. 'aswarda-dev'."
   type        = string
-  default     = "aswarda-dev"
+  default     = "aswarda-tf"
 }
 
 
