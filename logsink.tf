@@ -21,7 +21,7 @@ resource "google_storage_bucket" "log_archive" {
 resource "google_logging_project_sink" "gke_sink" {
   name        = "${var.name_prefix}-gke-to-gcs-sink"
   description = "Routes GKE stdout, stderr, and system logs to storage bucket"
-  destination = "://googleapis.com{google_storage_bucket.log_archive.name}"
+  destination = "storage.googleapis.com:${google_storage_bucket.log_archive.name}"
 
   # The filter targets container logs, GKE cluster operations, and node system logs
   filter = <<EOT
