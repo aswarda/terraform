@@ -14,7 +14,7 @@
 
 substitutions:
   _REGION: us-central1
-  _REPO: aswarda-dev-docker
+  _REPO: aswarda-gcp-tf-docker
   _IMAGE: sampleapp
   _PIPELINE: sampleapp-pipeline
 
