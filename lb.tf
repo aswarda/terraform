@@ -17,8 +17,10 @@
 resource "google_compute_instance_group" "web_ig" {
   name = "${var.name_prefix}-web-ig"
   zone = var.zone
-
-  instances = [google_compute_instance.web.self_link]
+  instances = [
+    google_compute_instance.web.self_link,
+    google_compute_instance.web2.self_link
+  ]
 
   # Name the port the backend service will route to (container/app port).
   named_port {
