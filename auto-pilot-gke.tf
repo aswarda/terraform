@@ -39,4 +39,9 @@ resource "google_container_cluster" "gke_autopilot" {
 
   deletion_protection = false
   depends_on           = [google_project_service.enabled]
+  timeouts {
+    create = "30m"
+    update = "30m"
+    delete = "30m"
+  }
 }
