@@ -50,6 +50,8 @@ steps:
   - id: apply
     name: hashicorp/terraform:${_TF_VERSION}
     entrypoint: terraform
+    env:
+      - "TF_LOG=DEBUG"
     args: ["apply", "-input=false", "-auto-approve", "tfplan"]
     timeout: 1800s
     
