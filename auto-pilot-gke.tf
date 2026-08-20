@@ -24,7 +24,7 @@ resource "google_container_cluster" "gke_autopilot" {
   private_cluster_config {
     enable_private_nodes    = true
     enable_private_endpoint = false
-    master_ipv4_cidr_block  = 172.17.0.0/28
+    master_ipv4_cidr_block  = "172.17.0.0/28"
   }
 
   # Workload Identity is ALWAYS ON in Autopilot -- cannot be disabled,
