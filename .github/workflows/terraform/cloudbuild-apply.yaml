@@ -51,6 +51,12 @@ steps:
     name: hashicorp/terraform:${_TF_VERSION}
     entrypoint: terraform
     args: ["apply", "-input=false", "-auto-approve", "tfplan"]
+    timeout: 1800s
+    
+timeout: 2400s
+
+options:
+  logging: CLOUD_LOGGING_ONLY
 
 
 options:
