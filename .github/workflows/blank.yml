@@ -11,13 +11,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # gitleaks needs full history, not a shallow clone
+          fetch-depth: 0
 
       - name: Run Checkov scan
         uses: bridgecrewio/checkov-action@v12
         with:
           directory: .
-          soft_fail: true   # prevents job from failing
+          soft_fail: true
+
+      - name: Fix workspace ownership after Checkov
+        run: sudo chown -R $(id -u):$(id -g) "$GITHUB_WORKSPACE"
 
       - name: Run Gitleaks scan
         uses: gitleaks/gitleaks-action@v2
