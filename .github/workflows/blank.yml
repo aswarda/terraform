@@ -1,21 +1,25 @@
-name: Checkov Scan
-
+name: Security Scan
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
-
 jobs:
   checkov-code-scan:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # gitleaks needs full history, not a shallow clone
 
       - name: Run Checkov scan
         uses: bridgecrewio/checkov-action@v12
         with:
-          directory: . 
+          directory: .
           soft_fail: true   # prevents job from failing
+
+      - name: Run Gitleaks scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
