@@ -1,0 +1,23 @@
+name: Update Naukri Profile
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # 00:00 UTC daily (= 5:30 AM IST)
+  workflow_dispatch:       # Manual trigger from the Actions tab
+
+jobs:
+  update-profile:
+    runs-on: ubuntu-latest   # GitHub-hosted runner
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update Naukri profile
+        uses: Prateek-Wayne/naukri-resume-action@v1.0.1
+        with:
+          username: aswardavadlamani45@gmail.com
+          password: Aswarda@1830
+          profile_id: e8617c1b43dfd1af25e77422d26d6095dba0a1aa01a01cbb2ba9b61a1f96d340
+          resume_path: |-
+            ./resume/Aswarda-DevOps.pdf
+          profile_summary: 'Your updated profile summary here, it must be more than 50 characters'
